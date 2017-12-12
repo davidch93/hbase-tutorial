@@ -10,6 +10,11 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 
 import com.google.protobuf.ServiceException;
 
+/**
+ * Configuration to create HBase connection.
+ * 
+ * @author David.Christianto
+ */
 public class ConnectionManager {
 
 	private static Connection connection;

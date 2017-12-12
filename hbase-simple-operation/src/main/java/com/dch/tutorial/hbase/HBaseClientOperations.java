@@ -20,6 +20,11 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.dch.tutorial.hbase.connection.ConnectionManager;
 
+/**
+ * Basic HBase client operations.
+ * 
+ * @author David.Christianto
+ */
 public class HBaseClientOperations {
 
 	private static final String TABLE_NAME = "user";
