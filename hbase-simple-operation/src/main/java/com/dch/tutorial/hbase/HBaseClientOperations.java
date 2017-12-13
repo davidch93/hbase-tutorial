@@ -185,6 +185,8 @@ public class HBaseClientOperations {
 			clientOperations.filters(table, Bytes.toBytes("contactInfo"), Bytes.toBytes("email"),
 					"dwayne@fabrikam.com");
 			clientOperations.deleteTable(connection.getAdmin(), tableName);
+
+			connection.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
