@@ -1,24 +1,16 @@
 package com.dch.tutorial.hbase;
 
-import java.io.IOException;
-
+import com.dch.tutorial.hbase.connection.ConnectionManager;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.dch.tutorial.hbase.connection.ConnectionManager;
+import java.io.IOException;
 
 /**
  * Basic HBase client operations.
@@ -28,6 +20,30 @@ import com.dch.tutorial.hbase.connection.ConnectionManager;
 public class HBaseClientOperations {
 
     private static final String TABLE_NAME = "user";
+
+    public static void main(String... args) {
+        try {
+            HBaseClientOperations clientOperations = new HBaseClientOperations();
+            Connection connection = ConnectionManager.getConnection();
+
+            TableName tableName = TableName.valueOf(TABLE_NAME);
+            if (!connection.getAdmin().tableExists(tableName)) {
+                clientOperations.createTable(connection.getAdmin());
+                clientOperations.put(connection.getTable(tableName));
+            }
+
+            Table table = connection.getTable(tableName);
+            clientOperations.get(table, Bytes.toBytes("1"), Bytes.toBytes("name"), Bytes.toBytes("first"));
+            clientOperations.scan(table, Bytes.toBytes("name"), Bytes.toBytes("last"));
+            clientOperations.filters(table, Bytes.toBytes("contactInfo"), Bytes.toBytes("email"),
+                    "dwayne@fabrikam.com");
+            clientOperations.deleteTable(connection.getAdmin(), tableName);
+
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Create the table with two column families.
@@ -145,30 +161,6 @@ public class HBaseClientOperations {
         if (admin.tableExists(tableName)) {
             admin.disableTable(tableName);
             admin.deleteTable(tableName);
-        }
-    }
-
-    public static void main(String... args) {
-        try {
-            HBaseClientOperations clientOperations = new HBaseClientOperations();
-            Connection connection = ConnectionManager.getConnection();
-
-            TableName tableName = TableName.valueOf(TABLE_NAME);
-            if (!connection.getAdmin().tableExists(tableName)) {
-                clientOperations.createTable(connection.getAdmin());
-                clientOperations.put(connection.getTable(tableName));
-            }
-
-            Table table = connection.getTable(tableName);
-            clientOperations.get(table, Bytes.toBytes("1"), Bytes.toBytes("name"), Bytes.toBytes("first"));
-            clientOperations.scan(table, Bytes.toBytes("name"), Bytes.toBytes("last"));
-            clientOperations.filters(table, Bytes.toBytes("contactInfo"), Bytes.toBytes("email"),
-                    "dwayne@fabrikam.com");
-            clientOperations.deleteTable(connection.getAdmin(), tableName);
-
-            connection.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
